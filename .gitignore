@@ -1,0 +1,9 @@
+build/
+build-*/
+data/
+*.fvecs
+*.ivecs
+*.bvecs
+.DS_Store
+.vscode/
+.idea/
