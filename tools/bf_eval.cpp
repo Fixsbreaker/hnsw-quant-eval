@@ -64,10 +64,13 @@ double seconds_since(std::chrono::steady_clock::time_point t0) {
     return std::chrono::duration<double>(std::chrono::steady_clock::now() - t0).count();
 }
 
-void print_recall(const hqe::Matrix<int32_t>& result, const hqe::Matrix<int32_t>& gt) {
+void print_recall(const hqe::Matrix<int32_t>& result, const hqe::Matrix<int32_t>& gt,
+                  const hqe::VectorStore& store, const hqe::Matrix<float>& queries) {
+    std::printf("           by id   with ties\n");
     for (size_t k : {1, 10, 100}) {
         if (k > result.dim || k > gt.dim) break;
-        std::printf("recall@%-3zu %.4f\n", k, hqe::recall_at_k(result, gt, k));
+        std::printf("recall@%-3zu %.4f  %.4f\n", k, hqe::recall_at_k(result, gt, k),
+                    hqe::recall_at_k_ties(result, gt, store, queries, k));
     }
 }
 
@@ -101,7 +104,7 @@ int main(int argc, char** argv) {
         if (!gt.empty()) {
             if (gt.rows != result.rows)
                 throw std::runtime_error("ground truth has fewer rows than queries");
-            print_recall(result, gt);
+            print_recall(result, gt, store, ds.query);
         } else {
             std::printf("no ground truth for this base size, nothing to compare\n");
         }

@@ -44,27 +44,12 @@ The saved file is the reference answer for evaluating the graph index on 10k vec
 
 | Base | Queries | k | Time | Queries/s | recall@1 | recall@10 | recall@100 |
 |---|---|---|---|---|---|---|---|
-| 1 000 000 | 1 000 | 100 | 9.2 s | 109 | 0.9950 | 0.9991 | 0.9999 |
-| 10 000 | 10 000 | 100 | 1.1 s | 9 380 | 1.0000 | 1.0000 | 1.0000 |
+| 1 000 000 | 1 000 | 100 | 9.2 s | 109 | 0.9950 / 1.0000 | 0.9991 / 1.0000 | 0.9999 / 1.0000 |
+| 10 000 | 10 000 | 100 | 1.1 s | 9 380 | 1.0000 / 1.0000 | 1.0000 / 1.0000 | 1.0000 / 1.0000 |
 
-Recall on the full base is below 1 only because of ties: SIFT coordinates are
-integers, so some vectors are at exactly the same distance and the official
-ground truth picks a different id. All 5 top-1 mismatches in the first 1000
-queries are such ties, and the top-10 distances match the ground truth for all
-1000 queries.
-
-## Layout
-
-```
-include/hqe/   public headers
-  io.h            fvecs / ivecs / bvecs readers and writers
-  dataset.h       SIFT1M loader
-  vector_store.h  aligned in-memory vector storage
-  distance.h      distance functions
-  brute_force.h   exact k-NN search
-  metrics.h       recall@k
-src/           implementation
-tools/         command line programs
-tests/         unit tests (ctest)
-scripts/       dataset download
-```
+Each cell is recall by id / recall with ties. SIFT coordinates are integers, so
+some vectors are at exactly the same distance from a query and the official
+ground truth may pick a different id than ours. Recall by id counts that as a
+miss. Recall with ties (`recall_at_k_ties`, same rule as ann-benchmarks) counts
+a returned vector as a hit when it is not farther than the k-th true neighbour,
+and on the full base it is 1.0, so brute force is exact.
