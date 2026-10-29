@@ -16,9 +16,14 @@ ctest --test-dir build
 ## SIFT1M
 
 ```bash
-./scripts/download_sift1m.sh          # downloads into data/sift (about 160 MB)
+pip install h5py numpy
+./scripts/download_sift1m.sh          # downloads into data/sift
 ./build/sift_info data/sift           # sizes, memory, load time
 ```
+
+By default the data comes from the ann-benchmarks mirror (HDF5, 525 MB) and is
+converted to fvecs/ivecs by `scripts/hdf5_to_vecs.py`. `SOURCE=ftp` uses the
+original TEXMEX archive, which is usually very slow.
 
 ## Exact search and recall
 
@@ -34,6 +39,19 @@ ctest --test-dir build
 ```
 
 The saved file is the reference answer for evaluating the graph index on 10k vectors.
+
+### Results (Apple M1 Pro, 10 threads, scalar L2)
+
+| Base | Queries | k | Time | Queries/s | recall@1 | recall@10 | recall@100 |
+|---|---|---|---|---|---|---|---|
+| 1 000 000 | 1 000 | 100 | 9.2 s | 109 | 0.9950 | 0.9991 | 0.9999 |
+| 10 000 | 10 000 | 100 | 1.1 s | 9 380 | 1.0000 | 1.0000 | 1.0000 |
+
+Recall on the full base is below 1 only because of ties: SIFT coordinates are
+integers, so some vectors are at exactly the same distance and the official
+ground truth picks a different id. All 5 top-1 mismatches in the first 1000
+queries are such ties, and the top-10 distances match the ground truth for all
+1000 queries.
 
 ## Layout
 
